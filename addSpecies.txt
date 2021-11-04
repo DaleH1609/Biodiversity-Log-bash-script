@@ -1,0 +1,88 @@
+!/bin/bash
+lightCyan='\033[1;36m'
+echo
+echo "-------------------------Welcome! You are now in the add species menu---------------------------------------------"
+echo 
+
+count=0
+while [ $count -lt 4 ]
+do
+   if [ $count -eq 0 ]
+   then
+      read -p "Please enter species name: " -r name
+      # Checks the entered name is not blank, otherwise a warning is issue and user asked to re-enter
+      if ! [ -z "${name}" ]
+      then
+        count=$((count+1))
+      else
+        echo "Warning: You cannot enter a blank name"
+      fi
+    fi
+    # Checks that the previous question was answered before moving onto the next, once answered count will go +1 activating if statement
+    if [ $count -eq 1 ]
+    then
+      read -p  "Please enter species eircode location: " -r eir
+      eircode=$( echo "$eir" | tr '[a-z]' '[A-Z]' )
+      if [[ $eircode =~ ^[A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z]$ ]]
+     then 
+        count=$((count+1))
+      else
+        echo "Warning: Please enter a valid eircode E.G. X92C4TK"
+      fi
+     fi
+     if [ $count -eq 2 ]
+      then
+      read -p "Please enter a date: " -r date
+      if [[ $date =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]] >/dev/null 2>&1
+      then
+        count=$((count+1))
+      else
+        echo "Warning: Please enter a valid date format e.g. 06/11/2021"
+      fi
+     fi
+     if [ $count -eq 3 ]
+      then
+        valid="^[a-z0-9!#\$%&'*+/=?^_\`{|}~-]+(\.[a-z0-9!#$%&'*+/=?^_\`{|}~-]+)*@([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z0-9]([a-z0-9-]*[a-z0-9])?\$"
+        read -p "Please enter an email: " -r email
+        if [[ $email =~ $valid ]];
+        then
+        count=$((count+1))
+        else
+        echo "Warning: Please enter a valid email e.g. test@test.com"
+      fi
+    fi
+done
+# This re-displays the data entered so the user can confirm.
+echo
+echo "----------- Entered Data ---------------------------------------------"
+echo $name" "$location" "$date" "$email""
+echo "----------------------------------------------------------------------"
+echo
+read -p "Are you sure you want to add this species (y/n):" -r answer
+echo
+if [[ "$answer"  ==  "y" || "$answer" == "Y" ]]
+then
+   echo "----------------------------------------------------------------------"
+   echo $name" "$location" "$date" "$email"" "added speices successfully"
+   echo "----------------------------------------------------------------------"
+   echo $name" "$location" "$date" "$email""  >> speciesDetails.txt
+else
+   echo "Species has not been added"
+fi
+
+echo
+echo "What next?"
+echo
+echo "Do you want to add another contact?"
+echo
+read -p "Enter y to proceed, n to return to main menu or any other key to exit?" -r answer
+
+case $answer in
+    [yY] | [yY][eE][sS] )
+        ./addSpecies.sh;;
+    [nN] | [nN][oO] )
+        ./speciesMenu.sh;;
+    *) echo exit;;
+esac
+
+

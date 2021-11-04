@@ -1,0 +1,31 @@
+GNU nano 4.8                                                        speciesMenu.sh                                                                  
+#!/bin/bash
+# Bash Menu Script Example
+
+echo "Please choose one of the following"
+PS3='Please enter your choice: '
+options=("Add" "Delete" "Search" "Email" "Exit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Add")
+            ./addSpecies.sh
+            ;;
+        "Delete")nano
+            ./searchSpecies.sh
+            ;;
+        "Search")
+            ./removeSpecies.sh
+            ;;
+        "Email")
+            ./email.sh
+            ;;
+        "Exit")
+            echo "You chose to exit. Bye!"
+            break
+            sleep 1
+            ;;
+        *) echo "invalid option $REPLY";;
+    esac
+done
+

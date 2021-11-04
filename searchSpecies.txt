@@ -1,0 +1,25 @@
+  GNU nano 4.8                                                                                 searchSpecies.sh                                                                                            
+#!/bin/bash
+
+# Menu used for searching species in the speciesDetails.txt file
+
+# While loop used until user decides to exit from the script 
+while true; do
+    read -p 'Please enter either the name or location of a specie you are looking for: ' -r speciesName
+    # grep used to search for keywords in speciesDetails.txt file and produce the name and location of the record
+    # If record not found stderr used to show no species or location found.
+    grep -i "$speciesName" speciesDetails.txt || echo "$speciesName: not found" >&2
+    # wc -l used to gather the amount of records the keyword is found on
+    TOTAL=`grep -e "$speciesName" speciesDetails.txt | wc -l`
+    echo "Total amount of records found: " $TOTAL
+    read -p 'Would you like to search for another species? Press n to quit or any other key to search again: ' -r answer
+    case $answer in
+     [nN] | [nN][oO] )
+        ./speciesMenu.sh
+        ;;
+    esac
+done
+
+
+
+

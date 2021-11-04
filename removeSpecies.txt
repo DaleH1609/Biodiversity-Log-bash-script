@@ -1,0 +1,73 @@
+# Bash menu, Case 
+
+echo "Please choose one of the following"
+PS3='Please enter your choice: '
+options=("Delete all" "Delete specific record" "Main menu")
+select opt in "${options[@]}"
+do
+   case $opt in
+        "Delete all")
+             RED='\033[0;31m'
+             read -p '${RED}Are you sure you want to delete all contents of the file? Press y to continue or n to exit' -r answer
+             case $answer in
+             [yY] | [yY][eE][sS] )
+             truncate -s 0 speciesDetails.txt
+             echo 'All contents have been deleted'
+             ./removeSpecies.sh
+             ;;
+             [nN] | [nN][oO] )
+             echo 'Redirecting back to remove options'
+             ./removeSpecies.sh;;
+             *) echo exit;;
+             esac
+             ;;
+        "Delete specific record")
+           read -p "Please enter the name of the species you want to delete: " -r speciesName
+           # While loop used to check if the name of the speices exists, loop won't exit until name is found or unless user selects n 
+           while ! grep -i $speciesName speciesDetails.txt > /dev/null
+           do
+             read -p "Name not found please type another name or press n exit: " -r speciesName
+                case $speciesName in
+                [nN] | [nN][oO] )
+                ./removeSpecies.sh;;
+              esac
+          done
+             echo
+             # Provides the user line numbers and the full details of the species selected.
+             cat -n speciesDetails.txt | grep -i $speciesName | awk '{print $0}'
+             echo
+             read -p "Please enter the line number you would like to delete: " -r lineNum
+             # cat -n to show line numbers, while loop used to make sure user correctly types line number of species listed
+             # This prevents user from incorrectly selecting a line number that's not listed in the list
+          while ! cat -n speciesDetails.txt | grep $lineNum  > /dev/null
+             do
+                read -p  "Please enter a valid number or press n to quit:  " -r lineNum
+                case $lineNum in
+                [nN] | [nN][oO] )
+                ./removeSpecies.sh;;
+              esac
+           done
+             echo 
+             # lineNum variable used within sed to allow user to select the line number they would like to remove.
+             sed -i "${lineNum}d" speciesDetails.txt
+             echo 'The species has been removed on line: ' $lineNum
+             echo
+             read -p 'Would you like to delete another species? Press y search or n to go back to main menu: ' -r answer1
+             case $answer1 in
+             [yY] | [yY][eE][sS] )
+             ./removeSpecies.sh;;
+             [nN] | [nN][oO] )
+             echo 'Redirecting back to main menu'
+             ./speciesMenu.sh;;
+             *) echo exit;;
+             esac
+             ;;
+        "Main menu")
+             ./speciesMenu.sh
+             ;;
+        *) echo "invalid option $REPLY";;
+    esac
+done
+
+
+

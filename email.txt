@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# Bash menu created to allow users to email people from the records in speciesDetails.txt 
+
+echo
+echo "-------------------------Welcome! You are now in the email contacts menu---------------------------------------------"
+echo 
+echo "Please choose one of the following"
+PS3='Please enter your choice: '
+options=("Email all" "Email specific record" "Main menu")
+select opt in "${options[@]}"
+do
+   case $opt in
+        "Email all")
+        awk '{print $4}' speciesDetails.txt > allEmails.txt
+        awk  '{ printf( "%s ", $1 ); } END { printf( "\n" ); }' allEmails.txt > emailRow.txt
+        emailFin=`awk '{print $0}' emailRow.txt`
+        echo
+        read -p "What would you like to say in the email: " -r message
+        echo
+        read -p "What would you like the subject to say?: " -r subject
+        echo 
+        echo "Message: " $message " Subject: " $subject " To: " $emailFin
+        echo 
+        read -p "Are you sure you want to send this email? Press n to cancel or y to send: " -r answer1
+        echo 
+             case $answer1 in
+             [yY] | [yY][eE][sS] )
+             # Variables used from user input added into the mail command to send email
+             echo $message | mail -s $subject $emailFin
+             echo
+             echo "Message has been sent"
+             echo
+             ./email.sh;;
+             [nN] | [nN][oO] )
+             echo 'Redirecting back to main menu'
+             echo
+             ./email.sh;;
+             esac 
+        ;;
+        "Email specific record")
+        echo
+        # cat -n to show line numbers combined with awk to show all emails listed in the records
+        cat -n speciesDetails.txt | awk '{print $5}'
+        echo
+        read -p "Who would you like to email: " -r email
+        echo
+        # While loop used to detect the email keyword in records. 
+        while ! grep -i $email speciesDetails.txt > /dev/null
+        do
+        read -p 'Email not found. If you cannot find what you are looking for type the letter n to get out of loop or type another email: ' -r email
+                case $email in
+                [nN] | [nN][oO] )
+                ./email.sh;;
+            esac
+        done
+        echo
+        read -p "What would you like to say in the email: " -r message
+        echo
+        read -p "What would you like the subject to say?: " -r subject
+        echo 
+        echo "Message: " $message " Subject: " $subject " To: " $email
+        echo 
+        read -p "Are you sure you want to send this email? Press n to cancel or y to send: " -r answer1
+        echo 
+             case $answer1 in
+             [yY] | [yY][eE][sS] )
+             # Variables used from user input added into the mail command to send email
+             echo $message | mail -s $subject $email > /dev/null;;
+             [nN] | [nN][oO] )
+             echo 'Redirecting back to main menu'
+             echo
+             ./email.sh;;
+             esac 
+        echo
+        echo 
+        read -p 'Would you like to send another email? Press y to send another or n to go back to main menu: ' -r answer2  case $answer2 in
+             [yY] | [yY][eE][sS] )
+             ./email.sh;;
+             [nN] | [nN][oO] )
+             echo 'Redirecting back to main menu'
+             echo
+             ./speciesMenu.sh;;
+             esac
+             ;;
+        "Main menu")
+             ./speciesMenu.sh;;
+        *) echo "invalid option $REPLY";;
+    esac
+done
